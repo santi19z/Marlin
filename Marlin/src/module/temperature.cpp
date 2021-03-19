@@ -1461,7 +1461,7 @@ void Temperature::manage_heater() {
         #elif ENABLED(HEATER_0_USES_MAX6675)
           return (
             #if ENABLED(MAX6675_IS_MAX31865)
-              max31865.temperature(100, 400)  // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+              max31865.temperature(MAX31865_SENSOR_OHMS, MAX31865_CALIBRATION_OHMS)
             #else
               raw * 0.25
             #endif
@@ -1668,12 +1668,12 @@ void Temperature::updateTemperaturesFromRawValues() {
 #endif
 #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
 #if EXTRUDER_AUTO_FAN_SPEED != 255
-  #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
 #else
   #define INIT_E_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
 #if CHAMBER_AUTO_FAN_SPEED != 255
-  #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(FAST_PWM_FAN_FREQUENCY); } else SET_OUTPUT(P); }while(0)
+  #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
 #else
   #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
 #endif
@@ -1702,10 +1702,10 @@ void Temperature::init() {
   #endif
 
   // Thermistor activation by MCU pin
-  #if PIN_EXISTS(TEMP_0_TR_ENABLE_PIN)
+  #if PIN_EXISTS(TEMP_0_TR_ENABLE)
     OUT_WRITE(TEMP_0_TR_ENABLE_PIN, ENABLED(HEATER_0_USES_MAX6675));
   #endif
-  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE)
     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(HEATER_1_USES_MAX6675));
   #endif
 
@@ -2236,7 +2236,7 @@ void Temperature::disable_all_heaters() {
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
     #if ENABLED(MAX6675_IS_MAX31865)
-      max6675_temp = int(max31865.temperature(100, 400)); // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+      max6675_temp = int(max31865.temperature(MAX31865_SENSOR_OHMS, MAX31865_CALIBRATION_OHMS));
     #endif
 
     //
